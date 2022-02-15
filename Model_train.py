@@ -45,7 +45,7 @@ class NMSELoss(nn.Module):
 os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 use_single_gpu = True  # select whether using single gpu or multiple gpus
 torch.manual_seed(1)
-batch_size = 32
+batch_size = 4
 epochs = 200
 learning_rate = 0.001
 num_workers = 0
@@ -60,20 +60,20 @@ if use_single_gpu:
 else:
     # DataParallel will divide and allocate batch_size to all available GPUs
     autoencoder = torch.nn.DataParallel(model).cuda()
-model.encoder.load_state_dict(torch.load('./Modelsave/encoder.pth.tar')['state_dict'])
-model.decoder.load_state_dict(torch.load('./Modelsave/decoder.pth.tar')['state_dict'])
+# model.encoder.load_state_dict(torch.load('./Modelsave/encoder.pth.tar')['state_dict'])
+# model.decoder.load_state_dict(torch.load('./Modelsave/decoder.pth.tar')['state_dict'])
 
 import scipy.io as scio
 criterion = NMSELoss().cuda()
 criterion_mse = nn.MSELoss().cuda()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-data_load_address = 'D:\AI无线通信\Model_pytorch_2021\data'
-mat = scio.loadmat(data_load_address+'\Htrain.mat')
+data_load_address = './data'
+mat = scio.loadmat(data_load_address+'/Htrain.mat')
 x_train = mat['H_train']  # shape=8000*126*128*2
 
 x_train = np.transpose(x_train.astype('float32'),[0,3,1,2])
 print(np.shape(x_train))
-mat = scio.loadmat(data_load_address+'\Htest.mat')
+mat = scio.loadmat(data_load_address+'/Htest.mat')
 x_test = mat['H_test']  # shape=2000*126*128*2
 
 x_test = np.transpose(x_test.astype('float32'),[0,3,1,2])
