@@ -1,5 +1,6 @@
 # AI-wireless-communication
 1. 必要的代码级样例展示
+```
 class SEBlock(nn.Module):
 
     def __init__(self, input_channels, internal_neurons):
@@ -17,13 +18,15 @@ class SEBlock(nn.Module):
         x = torch.sigmoid(x)
         x = x.repeat(1, 1, inputs.size(2), inputs.size(3))
         return inputs * x
-
+```
+```
 def autopad(k, p=None):  # kernel, padding
     # Pad to 'same'
     if p is None:
         p = k // 2 if isinstance(k, int) else [x // 2 for x in k]  # auto-pad
     return p
-
+```
+```
 class Conv(nn.Module):
     # Standard convolution
     def __init__(self, c1, c2, k=3, s=1, p=None, g=1, act=True):  # ch_in, ch_out, kernel, stride, padding, groups
@@ -34,7 +37,8 @@ class Conv(nn.Module):
 
     def forward(self, x):
         return self.act(self.bn(self.conv(x)))
-
+```
+```
 class Bottleneck(nn.Module):
     # Standard bottleneck
     def __init__(self, c1, c2, shortcut=True, g=1, e=0.5):  # ch_in, ch_out, shortcut, groups, expansion
@@ -46,9 +50,10 @@ class Bottleneck(nn.Module):
 
     def forward(self, x):
         return x + self.cv2(self.cv1(x)) if self.add else self.cv2(self.cv1(x))
-
+```
+```
 class BottleneckCSP(nn.Module):
-    # CSP Bottleneck https://github.com/WongKinYiu/CrossStagePartialNetworks
+    
     def __init__(self, c1, c2, n=1, shortcut=True, g=1, e=0.5):  # ch_in, ch_out, number, shortcut, groups, expansion
         super(BottleneckCSP, self).__init__()
         c_ = int(c2 * e)  # hidden channels
@@ -65,8 +70,8 @@ class BottleneckCSP(nn.Module):
         y1 = self.cv3(self.m(self.cv1(x)))
         y2 = self.cv2(x)
         return self.att(self.cv4(self.act(self.bn(torch.cat((y1, y2), dim=1)))))
-
-
+```
+```
 class C3(nn.Module):
     # CSP Bottleneck with 3 convolutions
     def __init__(self, c1, c2, n=1, shortcut=True, g=1, e=0.5):  # ch_in, ch_out, number, shortcut, groups, expansion
@@ -81,9 +86,9 @@ class C3(nn.Module):
 
     def forward(self, x):
         return self.att(self.cv3(torch.cat((self.m(self.cv1(x)), self.cv2(x)), dim=1)))
+```
 
-
-
+```
 class WLBlock(nn.Module):
     def __init__(self, paths, in_c, k=16, n=[1, 1], e=[1.0, 1.0], quantization=True):
 
@@ -111,7 +116,7 @@ class WLBlock(nn.Module):
         out = self.conv1(out)
         out = out + x if self.in_c == self.k else out
         return out
-
+```
 
 2. 算法思路			    		
 本算法采用端到端系统，使输入的信道样本数据经过编码器编码，再经解码器解码，将最后得到的结果与最初的输入进行对比，根据公式算出归一化均方误差 NMSE，并根据这个误差去不断优化模型直至误差最小。
